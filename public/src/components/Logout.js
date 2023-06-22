@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { styled } from "styled-components";
 import { BiPowerOff } from "react-icons/bi";
+import { socket } from "../utils/Socket";
 const Button = styled.div`
   display: flex;
   align-items: center;
@@ -19,9 +20,14 @@ const Button = styled.div`
 
 const LogOut = () => {
   const navigate = useNavigate();
+
+  const disconnect = () => {
+    socket.disconnect();
+  };
   const handleClick = () => {
     localStorage.clear();
     navigate("/login");
+    disconnect();
   };
   return (
     <Button onClick={handleClick}>

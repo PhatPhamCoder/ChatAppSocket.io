@@ -35,11 +35,14 @@ const Chat = () => {
   const socket = useRef();
   const navigate = useNavigate();
   const [data, setData] = useState();
+  console.log(data);
   const [currentUser, setCurrentUser] = useState(undefined);
   const [currentChat, setCurrentChat] = useState(undefined);
 
   useEffect(() => {
-    instance.get(`${allUserRoute}`).then((res) => setData(res.data));
+    instance
+      .get(`${allUserRoute}/${window.localStorage.getItem("ID")}`)
+      .then((res) => setData(res.data.data));
   }, []);
 
   useEffect(() => {
@@ -63,9 +66,13 @@ const Chat = () => {
     const decode = jwtDecode(window.localStorage.getItem("refreshToken"));
     if (decode) {
       if (decode?.exp > Date.now()) {
-        localStorage.clear();
+        localStorage.clear("accessToken");
         navigate("/login");
+      } else if (decode?.exp > Date.now()) {
+        navigate("/");
       }
+    } else {
+      navigate("/login");
     }
   }, []);
 

@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import styled from "styled-components";
-import axios from "axios";
 import { registerRoute } from "../utils/APIRoutes";
 import instance from "../config/axiosConfig";
+
 const FormContainer = styled.div`
   height: 100vh;
   width: 100vw;

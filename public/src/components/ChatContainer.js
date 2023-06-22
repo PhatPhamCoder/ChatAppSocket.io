@@ -6,8 +6,10 @@ import { getAllMessageRoute, messageRoute } from "../utils/APIRoutes";
 import instance from "../config/axiosConfig";
 
 const ChatContainer = ({ currentChat, currentUser, socket }) => {
+  // console.log("Check currentChat::", currentChat);
+  // console.log("Check currentUser::", currentUser);
   const [messages, setMessages] = useState([]);
-  const scrollRef = useRef();
+  const scrollRef = useRef(null);
   const [arrivalMessage, setArrivalMessage] = useState(null);
 
   const handleSendMsg = async (msg) => {
@@ -33,7 +35,10 @@ const ChatContainer = ({ currentChat, currentUser, socket }) => {
         message: msg,
       });
 
-      const updatedMessages = [...messages, { fromSelf: true, message: msg }];
+      const updatedMessages = [
+        ...messages,
+        { fromSelf: true, sendto: toId, message: msg },
+      ];
       setMessages(updatedMessages);
     } catch (error) {
       // Handle error
@@ -44,7 +49,12 @@ const ChatContainer = ({ currentChat, currentUser, socket }) => {
   useEffect(() => {
     if (socket.current) {
       socket.current.on("msg-recieve", (msg) => {
-        setArrivalMessage({ fromSelf: false, message: msg });
+        // console.log("check msg update::", data);
+        setArrivalMessage({
+          fromSelf: false,
+          sendto: currentChat?.id,
+          message: msg,
+        });
       });
     }
   }, []);
@@ -54,7 +64,7 @@ const ChatContainer = ({ currentChat, currentUser, socket }) => {
   }, [arrivalMessage]);
 
   useEffect(() => {
-    scrollRef.current?.scrollHeight({ behavior: "smooth" });
+    scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages]);
 
   useEffect(() => {
@@ -90,12 +100,17 @@ const ChatContainer = ({ currentChat, currentUser, socket }) => {
         </div>
       </div>
       {/* <Messages /> */}
-      <div className="chat-messages">
-        {messages?.map((msg, index) => {
+      <div className="chat-messages" ref={scrollRef}>
+        {messages.map((msg, index) => {
           return (
             <div key={index}>
               <div
-                className={`message ${msg.fromSelf ? "sender" : "received"}`}
+                className={`message ${
+                  currentChat?.id === msg?.sendto ||
+                  currentUser?.dataRes?.[0]?.id === msg?.sendto
+                    ? `${msg.fromSelf ? "sender" : "received"}`
+                    : "hidden-chat"
+                }`}
               >
                 <div className="content">
                   <p>{msg.message}</p>
@@ -193,6 +208,10 @@ const Container = styled.div`
       .content {
         background-color: #9900ff20;
       }
+    }
+
+    .hidden-chat {
+      display: none;
     }
   }
 `;

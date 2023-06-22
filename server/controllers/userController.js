@@ -99,10 +99,12 @@ const Login = async (req, res, next) => {
               error: [err],
             });
           }
+
           const comparePassword = await bcrypt.compare(
             password,
             dataRes?.[0].password,
           );
+
           if (!comparePassword) {
             return res.send({
               result: false,
@@ -267,7 +269,7 @@ const refreshToken = async (req, res) => {
 
 const getAllUsers = async (req, res, next) => {
   try {
-    // console.log(id);
+    const id = req.params.id;
     db.getConnection((err, conn) => {
       if (err) {
         return res.send({
@@ -276,7 +278,8 @@ const getAllUsers = async (req, res, next) => {
         });
       }
       conn.query(
-        `SELECT id,username,email FROM ${tableUser} `,
+        `SELECT id,username,email FROM ${tableUser} WHERE id <> ?`,
+        id,
         (err, dataRes) => {
           if (err) {
             return res.send({
@@ -288,7 +291,7 @@ const getAllUsers = async (req, res, next) => {
           if (dataRes && dataRes.length > 0) {
             return res.send({
               result: true,
-              dataRes,
+              data: dataRes,
             });
           }
         },

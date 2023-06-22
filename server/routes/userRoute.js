@@ -12,7 +12,7 @@ const router = require("express").Router();
 router.post("/register", Register);
 router.post("/login", Login);
 
-router.get("/allusers", verifyToken, getAllUsers);
+router.get("/allusers/:id", verifyToken, getAllUsers);
 router.get("/user/:id", verifyToken, getUser);
 
 router.post("/refresh-token", refreshToken);

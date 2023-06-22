@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import styled from "styled-components";
 import { loginRoute } from "../utils/APIRoutes";
 import instance from "../config/axiosConfig";
-import jwtDecode from "jwt-decode";
+
 const FormContainer = styled.div`
   height: 100vh;
   width: 100vw;
@@ -112,7 +112,7 @@ function Login() {
         toast.success(data?.data?.msg);
         setTimeout(() => {
           navigate("/");
-        }, 5000);
+        }, 1000);
       }
     }
   };

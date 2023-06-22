@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { styled } from "styled-components";
+import { socket } from "../utils/Socket";
 
 const Container = styled.div`
   display: flex;
@@ -16,6 +17,21 @@ const Container = styled.div`
     justify-content: center;
     width: 100%;
     background-color: white;
+    @media screen and (min-width: 720px) and (max-width: 1080px) {
+      img {
+        width: 80%;
+      }
+    }
+
+    @media screen and (min-width: 480px) and (max-width: 680px) {
+      img {
+        display: none;
+      }
+    }
+  }
+
+  .join-room {
+    margin-top: 0.6rem;
   }
 
   .contacts {
@@ -63,10 +79,18 @@ const Container = styled.div`
 `;
 
 const Contacts = ({ contacts, currentUser, changeChat }) => {
+  console.log(contacts);
   const [currentSelected, setCurrentSelected] = useState(undefined);
+  const [room, setRoom] = useState();
   const changeCurrentChat = (index, contact) => {
     setCurrentSelected(index);
     changeChat(contact);
+  };
+
+  const joinRoom = () => {
+    if (room !== "") {
+      socket.emit("join_room", room);
+    }
   };
 
   return (
@@ -74,8 +98,38 @@ const Contacts = ({ contacts, currentUser, changeChat }) => {
       <div className="brand">
         <img src="https://optech.vn/public/tkw/images/logo/logo2.png" alt="" />
       </div>
+
+      <div className="join-room">
+        <input
+          type="text"
+          placeholder="Nhập mã Phòng"
+          style={{
+            outline: "none",
+            padding: "5px",
+            borderRadius: "10px",
+            border: "0px",
+            fontWeight: "bold",
+          }}
+          onChange={(e) => setRoom(e.target.value)}
+        />
+        <button
+          style={{
+            border: "0px",
+            outline: "none",
+            borderRadius: "8px",
+            padding: "4px",
+            fontWeight: "bold",
+            color: "red",
+            cursor: "pointer",
+            marginLeft: "0.4rem",
+          }}
+          onClick={joinRoom}
+        >
+          Join
+        </button>
+      </div>
       <div className="contacts">
-        {contacts?.dataRes?.map((contact, index) => {
+        {contacts?.map((contact, index) => {
           return (
             <div
               className={`contact ${

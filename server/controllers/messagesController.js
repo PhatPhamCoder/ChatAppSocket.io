@@ -1,9 +1,5 @@
 const db = require("../model/connectDb");
 const constantNotify = require("../utils/constanNotify");
-const {
-  signAccesToken,
-  signRefreshToken,
-} = require("../middlewares/jwtMiddleware");
 const Messages = require("../model/messagesModel");
 const tableChat = "tbl_chat";
 
@@ -59,26 +55,31 @@ const getAllMessage = async (req, res, next) => {
         });
       }
       conn.query(
-        `SELECT senderID,userTo,message FROM tbl_chat WHERE senderID = ${from} OR senderID = ${to} ORDER BY created_at ASC`,
+        `SELECT message,senderID,userTo FROM ${tableChat} WHERE senderID = ${from} OR senderID = ${to}`,
         (err, dataRes) => {
           if (err) {
+            // console.error(err);
             return res.send({
               result: false,
               error: [err],
             });
           }
-          // console.log("Check dataRes:::", dataRes);
-          if (dataRes.length > 0) {
-            const dataMessages = dataRes?.map((msg) => {
+          if (dataRes.length === 0) {
+            console.log("Không tìm thấy data của người dùng");
+            return;
+          }
+          if (dataRes.length !== 0) {
+            const dataMsgOfSender = dataRes.map((msg) => {
               return {
-                fromSelf: msg?.senderID === from,
+                fromSelf: msg?.userTo === to,
+                sendto: msg?.userTo,
                 message: msg?.message,
               };
             });
-            // console.log(dataMessages);
+            // console.log(dataMsgOfSender);
             return res.send({
               result: true,
-              data: dataMessages,
+              data: dataMsgOfSender,
             });
           }
         },
