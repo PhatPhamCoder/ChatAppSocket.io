@@ -91,4 +91,8 @@ async function refreshToken() {
   return (await instance.post("auth/refresh-token", dataRefresh)).data;
 }
 
+export const axiosUpload = axios.create({
+  baseURL: "http://localhost:5000/api/",
+});
+
 export default instance;

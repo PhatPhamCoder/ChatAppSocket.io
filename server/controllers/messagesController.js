@@ -16,7 +16,6 @@ const addMessage = async (req, res) => {
       const messages = new Messages({
         message: message,
         senderID: from,
-        userFrom: from,
         userTo: to,
         created_at: Date.now(),
       });
@@ -55,7 +54,7 @@ const getAllMessage = async (req, res, next) => {
         });
       }
       conn.query(
-        `SELECT message,senderID,userTo FROM ${tableChat} WHERE senderID = ${from} OR senderID = ${to}`,
+        `SELECT message,senderID,userTo,filename FROM ${tableChat} WHERE senderID = ${from} OR senderID = ${to}`,
         (err, dataRes) => {
           if (err) {
             // console.error(err);
@@ -73,10 +72,11 @@ const getAllMessage = async (req, res, next) => {
               return {
                 fromSelf: msg?.userTo === to,
                 sendto: msg?.userTo,
+                sendFrom: msg?.senderID,
                 message: msg?.message,
+                image: msg?.filename,
               };
             });
-            // console.log(dataMsgOfSender);
             return res.send({
               result: true,
               data: dataMsgOfSender,

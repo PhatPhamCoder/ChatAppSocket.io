@@ -1,17 +1,26 @@
 const express = require("express");
 const morgan = require("morgan");
+require("dotenv").config();
 const cors = require("cors");
 const app = express();
-require("dotenv").config();
+
+const bodyParser = require("body-parser");
+const compression = require("compression");
 const socket = require("socket.io");
 const userRoutes = require("./routes/userRoute");
 const messagesRoutes = require("./routes/messagesRoute");
+const uploadRoutes = require("./routes/uploadRoute");
 
-app.use(cors());
 app.use(morgan("dev"));
-app.use(express.json());
+app.use(cors());
+app.use(express.static("public"));
+app.use(compression());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+
 app.use("/api/auth", userRoutes);
 app.use("/api/messages", messagesRoutes);
+app.use("/api/uploads", uploadRoutes);
 
 const server = app.listen(process.env.PORT, () => {
   console.log(`Server is running port ${process.env.PORT}`);
@@ -53,8 +62,5 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("disconnect", () => {
-    // console.log("User Disconnected::", socket.id);
-    // socket.emit("offline", "User busy");
-  });
+  socket.on("disconnect", () => {});
 });

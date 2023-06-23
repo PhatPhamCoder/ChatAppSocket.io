@@ -1,20 +1,34 @@
 import React, { useState } from "react";
 import EmojiPicker from "emoji-picker-react";
 import styled from "styled-components";
-import { IoMdSend } from "react-icons/io";
-import { BsEmojiSmileFill } from "react-icons/bs";
+import { FiSend } from "react-icons/fi";
+import { CiFaceSmile } from "react-icons/ci";
+import { ImAttachment } from "react-icons/im";
+import { axiosUpload } from "../config/axiosConfig";
+import { uploadRoute } from "../utils/APIRoutes";
 
 const Container = styled.div`
   display: grid;
   grid-template-columns: 5% 95%;
   align-items: center;
   background-color: #080420;
-  padding: 0.3rem 2rem;
+  padding: 0.1rem 2rem;
   .button-container {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     color: white;
-    gap: 1rem;
+    gap: 0.5rem;
+
+    .file-attach {
+      color: white;
+      svg {
+        font-size: 1.5rem;
+        color: #ffff00c8;
+        cursor: pointer;
+      }
+      margin-right: 0.2rem;
+    }
     .emoji {
       position: relative;
       svg {
@@ -26,7 +40,7 @@ const Container = styled.div`
       .EmojiPickerReact {
         position: absolute !important;
         top: -460px !important;
-        left: -30px !important;
+        left: -24px !important;
         background-color: #9a86f3;
         box-shadow: 0 5px 10px #9a86f3;
         border: #9186f3;
@@ -60,14 +74,16 @@ const Container = styled.div`
     }
   }
   .input-container {
+    position: relative;
     width: 100%;
     border-radius: 2rem;
     display: flex;
     align-items: center;
+    padding: 0 0.5rem;
     gap: 2rem;
     background-color: #ffffff34;
     input {
-      width: 80%;
+      width: 100%;
       height: 60%;
       background: transparent;
       border: none;
@@ -80,20 +96,24 @@ const Container = styled.div`
       }
     }
     button {
+      position: absolute;
+      right: 1rem;
+      align-items: center;
       display: flex;
-      padding: 0.8rem 1rem;
-      border-radius: 1rem;
+      background-color: transparent;
+      color: white;
+      border-radius: 0.5rem;
       outline: none;
       border: none;
       cursor: pointer;
       svg {
-        font-size: 1.2rem;
+        font-size: 1.5rem;
       }
     }
   }
 `;
 
-const ChatInput = ({ handleSendMsg }) => {
+const ChatInput = ({ handleSendMsg, currentChat }) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [msg, setMsg] = useState("");
   const handleEmojiPickerHideShow = () => {
@@ -113,12 +133,37 @@ const ChatInput = ({ handleSendMsg }) => {
       setMsg("");
     }
   };
+
+  const handleUpload = async (e) => {
+    const formData = new FormData();
+    formData.append("image", e.target.files[0]);
+    await axiosUpload
+      .post(
+        `${uploadRoute}/${window.localStorage.getItem("ID")}/${currentChat}`,
+        formData,
+      )
+      .then((res) => console.log(res.data))
+      .catch((err) => console.error(err));
+  };
+
   return (
     <Container>
       <div className="button-container">
         <div className="emoji">
-          <BsEmojiSmileFill onClick={handleEmojiPickerHideShow} />
+          <CiFaceSmile onClick={handleEmojiPickerHideShow} />
           {showEmojiPicker && <EmojiPicker onEmojiClick={handleEmojiClick} />}
+        </div>
+        <div className="file-attach">
+          <label htmlFor="attach">
+            <ImAttachment />
+          </label>
+          <input
+            type="file"
+            id="attach"
+            hidden
+            accept="image/png, image/jpeg, image/jpg"
+            onChange={(e) => handleUpload(e)}
+          />
         </div>
       </div>
       <form className="input-container" onSubmit={(e) => sendChat(e)}>
@@ -129,7 +174,7 @@ const ChatInput = ({ handleSendMsg }) => {
           onChange={(e) => setMsg(e.target.value)}
         />
         <button type="submit">
-          <IoMdSend />
+          <FiSend />
         </button>
       </form>
     </Container>

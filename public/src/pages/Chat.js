@@ -35,7 +35,6 @@ const Chat = () => {
   const socket = useRef();
   const navigate = useNavigate();
   const [data, setData] = useState();
-  console.log(data);
   const [currentUser, setCurrentUser] = useState(undefined);
   const [currentChat, setCurrentChat] = useState(undefined);
 

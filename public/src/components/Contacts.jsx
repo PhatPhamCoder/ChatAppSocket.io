@@ -79,7 +79,6 @@ const Container = styled.div`
 `;
 
 const Contacts = ({ contacts, currentUser, changeChat }) => {
-  console.log(contacts);
   const [currentSelected, setCurrentSelected] = useState(undefined);
   const [room, setRoom] = useState();
   const changeCurrentChat = (index, contact) => {

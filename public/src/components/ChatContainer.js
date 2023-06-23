@@ -2,13 +2,13 @@ import React, { useEffect, useRef, useState } from "react";
 import { styled } from "styled-components";
 import LogOut from "./Logout";
 import ChatInput from "./ChatInput";
-import { getAllMessageRoute, messageRoute } from "../utils/APIRoutes";
+import { getAllMessageRoute, host, messageRoute } from "../utils/APIRoutes";
 import instance from "../config/axiosConfig";
 
 const ChatContainer = ({ currentChat, currentUser, socket }) => {
-  // console.log("Check currentChat::", currentChat);
-  // console.log("Check currentUser::", currentUser);
   const [messages, setMessages] = useState([]);
+  console.log(messages);
+
   const scrollRef = useRef(null);
   const [arrivalMessage, setArrivalMessage] = useState(null);
 
@@ -79,6 +79,17 @@ const ChatContainer = ({ currentChat, currentUser, socket }) => {
     }
   }, [currentChat]);
 
+  const img = () => {
+    return (
+      <div>
+        <img
+          src="https://media.istockphoto.com/id/524711494/photo/ho-chi-minh-city-in-vietnam-at-night.jpg?s=612x612&w=0&k=20&c=qHfeFhEMVzKPNULF7UkRzP6ky2VuZMTZKoceTGHlCcc="
+          alt=""
+        />
+      </div>
+    );
+  };
+
   return (
     <Container>
       <div className="chat-header">
@@ -113,14 +124,27 @@ const ChatContainer = ({ currentChat, currentUser, socket }) => {
                 }`}
               >
                 <div className="content">
-                  <p>{msg.message}</p>
+                  {msg.message !== null ? (
+                    msg.message
+                  ) : currentChat?.id === msg?.sendFrom ||
+                    currentUser?.dataRes?.[0]?.id === msg?.sendFrom ? (
+                    <img
+                      src={`${host}/thumb/${msg.sendFrom}/` + msg.image}
+                      alt=""
+                    />
+                  ) : (
+                    <img
+                      src={`${host}/thumb/${msg.sendto}/` + msg.image}
+                      alt=""
+                    />
+                  )}
                 </div>
               </div>
             </div>
           );
         })}
       </div>
-      <ChatInput handleSendMsg={handleSendMsg} />
+      <ChatInput handleSendMsg={handleSendMsg} currentChat={currentChat?.id} />
     </Container>
   );
 };
@@ -175,14 +199,14 @@ const Container = styled.div`
     gap: 1rem;
     overflow: auto;
     &::-webkit-scrollbar {
-      width: 0.7rem;
+      width: 0.5rem;
     }
 
     &::-webkit-scrollbar-track {
       background-color: #080420;
     }
     &::-webkit-scrollbar-thumb {
-      background-color: #00000034;
+      background-color: #ffffff39;
       border-radius: 1.2rem;
     }
     .message {
@@ -195,6 +219,16 @@ const Container = styled.div`
         font-size: 1.1rem;
         border-radius: 1rem;
         color: #d1d1d1;
+
+        img {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-right: -1rem;
+          padding: 0.2rem;
+          border-radius: 1rem;
+        }
       }
     }
     .sender {
