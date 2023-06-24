@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import EmojiPicker from "emoji-picker-react";
 import styled from "styled-components";
 import { FiSend } from "react-icons/fi";
@@ -95,6 +95,7 @@ const Container = styled.div`
         background-color: #9186f3;
       }
     }
+
     button {
       position: absolute;
       right: 1rem;
@@ -116,6 +117,7 @@ const Container = styled.div`
 const ChatInput = ({ handleSendMsg, currentChat }) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [msg, setMsg] = useState("");
+  const [file, setFile] = useState();
   const handleEmojiPickerHideShow = () => {
     setShowEmojiPicker(!showEmojiPicker);
   };
@@ -126,17 +128,16 @@ const ChatInput = ({ handleSendMsg, currentChat }) => {
     setMsg(message);
   };
 
-  const sendChat = (event) => {
+  const sendChat = async (event) => {
     event.preventDefault();
+
     if (msg.length > 0) {
       handleSendMsg(msg);
       setMsg("");
     }
-  };
 
-  const handleUpload = async (e) => {
     const formData = new FormData();
-    formData.append("image", e.target.files[0]);
+    formData.append("image", file);
     await axiosUpload
       .post(
         `${uploadRoute}/${window.localStorage.getItem("ID")}/${currentChat}`,
@@ -144,6 +145,11 @@ const ChatInput = ({ handleSendMsg, currentChat }) => {
       )
       .then((res) => console.log(res.data))
       .catch((err) => console.error(err));
+  };
+
+  const handleUpload = async (e) => {
+    const selectedImage = e.target.files[0];
+    setFile(selectedImage);
   };
 
   return (

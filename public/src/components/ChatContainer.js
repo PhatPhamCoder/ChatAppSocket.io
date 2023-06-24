@@ -4,11 +4,8 @@ import LogOut from "./Logout";
 import ChatInput from "./ChatInput";
 import { getAllMessageRoute, host, messageRoute } from "../utils/APIRoutes";
 import instance from "../config/axiosConfig";
-
 const ChatContainer = ({ currentChat, currentUser, socket }) => {
   const [messages, setMessages] = useState([]);
-  console.log(messages);
-
   const scrollRef = useRef(null);
   const [arrivalMessage, setArrivalMessage] = useState(null);
 
@@ -49,7 +46,6 @@ const ChatContainer = ({ currentChat, currentUser, socket }) => {
   useEffect(() => {
     if (socket.current) {
       socket.current.on("msg-recieve", (msg) => {
-        // console.log("check msg update::", data);
         setArrivalMessage({
           fromSelf: false,
           sendto: currentChat?.id,
@@ -78,17 +74,6 @@ const ChatContainer = ({ currentChat, currentUser, socket }) => {
         .catch((err) => console.error(err));
     }
   }, [currentChat]);
-
-  const img = () => {
-    return (
-      <div>
-        <img
-          src="https://media.istockphoto.com/id/524711494/photo/ho-chi-minh-city-in-vietnam-at-night.jpg?s=612x612&w=0&k=20&c=qHfeFhEMVzKPNULF7UkRzP6ky2VuZMTZKoceTGHlCcc="
-          alt=""
-        />
-      </div>
-    );
-  };
 
   return (
     <Container>

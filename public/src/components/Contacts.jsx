@@ -2,6 +2,77 @@ import React, { useState } from "react";
 import { styled } from "styled-components";
 import { socket } from "../utils/Socket";
 
+const Contacts = ({ contacts, currentUser, changeChat }) => {
+  const [currentSelected, setCurrentSelected] = useState(undefined);
+  const [room, setRoom] = useState();
+  const changeCurrentChat = (index, contact) => {
+    setCurrentSelected(index);
+    changeChat(contact);
+  };
+
+  const joinRoom = () => {
+    if (room !== "") {
+      socket.emit("join_room", room);
+    }
+  };
+
+  return (
+    <Container>
+      <div className="brand">
+        <img src="https://optech.vn/public/tkw/images/logo/logo2.png" alt="" />
+      </div>
+
+      <div className="join-room">
+        <input
+          type="text"
+          placeholder="Nhập mã Phòng"
+          style={{
+            outline: "none",
+            padding: "5px",
+            borderRadius: "10px",
+            border: "0px",
+            fontWeight: "bold",
+          }}
+          onChange={(e) => setRoom(e.target.value)}
+        />
+        <button
+          style={{
+            border: "0px",
+            outline: "none",
+            borderRadius: "8px",
+            padding: "4px",
+            fontWeight: "bold",
+            color: "red",
+            cursor: "pointer",
+            marginLeft: "0.4rem",
+          }}
+          onClick={joinRoom}
+        >
+          Join
+        </button>
+      </div>
+      <div className="contacts">
+        {contacts?.map((contact, index) => {
+          return (
+            <div
+              className={`contact ${
+                index === currentSelected ? "selected" : ""
+              }`}
+              key={index}
+              onClick={() => changeCurrentChat(index, contact)}
+            >
+              {contact.username}
+            </div>
+          );
+        })}
+      </div>
+      <div className="current-user">{currentUser?.dataRes[0]?.username}</div>
+    </Container>
+  );
+};
+
+export default Contacts;
+
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -77,74 +148,3 @@ const Container = styled.div`
     font-weight: bold;
   }
 `;
-
-const Contacts = ({ contacts, currentUser, changeChat }) => {
-  const [currentSelected, setCurrentSelected] = useState(undefined);
-  const [room, setRoom] = useState();
-  const changeCurrentChat = (index, contact) => {
-    setCurrentSelected(index);
-    changeChat(contact);
-  };
-
-  const joinRoom = () => {
-    if (room !== "") {
-      socket.emit("join_room", room);
-    }
-  };
-
-  return (
-    <Container>
-      <div className="brand">
-        <img src="https://optech.vn/public/tkw/images/logo/logo2.png" alt="" />
-      </div>
-
-      <div className="join-room">
-        <input
-          type="text"
-          placeholder="Nhập mã Phòng"
-          style={{
-            outline: "none",
-            padding: "5px",
-            borderRadius: "10px",
-            border: "0px",
-            fontWeight: "bold",
-          }}
-          onChange={(e) => setRoom(e.target.value)}
-        />
-        <button
-          style={{
-            border: "0px",
-            outline: "none",
-            borderRadius: "8px",
-            padding: "4px",
-            fontWeight: "bold",
-            color: "red",
-            cursor: "pointer",
-            marginLeft: "0.4rem",
-          }}
-          onClick={joinRoom}
-        >
-          Join
-        </button>
-      </div>
-      <div className="contacts">
-        {contacts?.map((contact, index) => {
-          return (
-            <div
-              className={`contact ${
-                index === currentSelected ? "selected" : ""
-              }`}
-              key={index}
-              onClick={() => changeCurrentChat(index, contact)}
-            >
-              {contact.username}
-            </div>
-          );
-        })}
-      </div>
-      <div className="current-user">{currentUser?.dataRes[0]?.username}</div>
-    </Container>
-  );
-};
-
-export default Contacts;
