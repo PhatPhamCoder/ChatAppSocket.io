@@ -5,33 +5,133 @@ const tableChat = "tbl_chat";
 
 const addMessage = async (req, res) => {
   try {
-    const { from, to, message } = req.body;
+    const { from, to, message, roomId } = req.body;
+
+    if (roomId && !to) {
+      db.getConnection((err, conn) => {
+        if (err) {
+          return res.send({
+            result: flase,
+            error: [{ msg: constantNotify.ERROR_DB }],
+          });
+        }
+        const messages = new Messages({
+          senderID: from,
+          roomId: roomId,
+          message: message,
+          created_at: Date.now(),
+        });
+        delete messages?.userTo;
+        delete messages?.filename;
+        if (message) {
+          conn.query(
+            `INSERT INTO ${tableChat} SET roomId = ?,senderID = ?, message = ?, created_at = ?`,
+            [
+              messages.roomId,
+              messages.senderID,
+              messages.message,
+              messages.created_at,
+            ],
+            (err, res_) => {
+              if (err) {
+                return res.send({
+                  result: false,
+                  error: [{ msg: constantNotify.ERROR }],
+                });
+              }
+              return res.send({
+                result: true,
+                data: { msg: constantNotify.ADD_DATA_SUCCESS },
+              });
+            },
+          );
+          conn.release();
+        }
+        conn.release();
+      });
+    }
+
+    if (!roomId && to) {
+      db.getConnection((err, conn) => {
+        if (err) {
+          return res.send({
+            result: false,
+            error: [err],
+          });
+        }
+        const messages = new Messages({
+          senderID: from,
+          userTo: to,
+          message: message,
+          created_at: Date.now(),
+        });
+        delete messages?.roomID;
+        delete messages?.filename;
+        if (messages) {
+          conn.query(
+            `INSERT INTO ${tableChat} SET userTo = ?,senderID = ?, message = ?, created_at = ?`,
+            [
+              messages.userTo,
+              messages.senderID,
+              messages.message,
+              messages.created_at,
+            ],
+            (err, res_) => {
+              if (err) {
+                return res.send({
+                  result: false,
+                  error: [{ msg: constantNotify.ERROR }],
+                });
+              }
+              return res.send({
+                result: true,
+                data: { msg: constantNotify.ADD_DATA_SUCCESS },
+              });
+            },
+          );
+          conn.release();
+        }
+      });
+    }
+  } catch (error) {
+    return res.send({
+      result: fals,
+      error: [{ msg: error }],
+    });
+  }
+};
+
+const addMessageRoom = async (req, res) => {
+  try {
+    const { from, message, roomId } = req.body;
     db.getConnection((err, conn) => {
       if (err) {
         return res.send({
-          result: false,
-          error: [err],
+          result: flase,
+          error: [{ msg: constantNotify.ERROR_DB }],
         });
       }
       const messages = new Messages({
         senderID: from,
-        userTo: to,
+        roomId: roomId,
         message: message,
         created_at: Date.now(),
       });
-      delete messages?.roomID;
+      delete messages?.userTo;
       delete messages?.filename;
-      if (messages) {
+      // console.log(messages);
+      if (message) {
         conn.query(
-          `INSERT INTO ${tableChat} SET userTo = ?,senderID = ?, message = ?, created_at = ?`,
+          `INSERT INTO ${tableChat} SET roomId = ?,senderID = ?, message = ?, created_at = ?`,
           [
-            messages.userTo,
+            messages.roomId,
             messages.senderID,
             messages.message,
             messages.created_at,
           ],
           (err, res_) => {
             if (err) {
+              console.error(err);
               return res.send({
                 result: false,
                 error: [{ msg: constantNotify.ERROR }],
@@ -43,8 +143,8 @@ const addMessage = async (req, res) => {
             });
           },
         );
-        conn.release();
       }
+      conn.release();
     });
   } catch (error) {
     return res.send({
@@ -54,7 +154,7 @@ const addMessage = async (req, res) => {
   }
 };
 
-const getAllMessage = async (req, res, next) => {
+const getAllMessage = async (req, res) => {
   try {
     const { from, to } = req.body;
     db.getConnection((err, conn) => {
@@ -106,4 +206,51 @@ const getAllMessage = async (req, res, next) => {
   }
 };
 
-module.exports = { addMessage, getAllMessage };
+const getMessageRoom = async (req, res) => {
+  try {
+    const { from, roomId } = req.body;
+    // console.log({ from, roomId });
+    if (from && roomId) {
+      db.getConnection((err, conn) => {
+        if (err) {
+          return res.send({
+            result: false,
+            error: [err],
+          });
+        }
+        conn.query(
+          `SELECT message,senderID FROM ${tableChat} WHERE roomId = ${roomId}`,
+          (err, dataRes) => {
+            if (err) {
+              return res.send({
+                result: false,
+                error: [{ msg: constantNotify.ERROR_DB }],
+              });
+            }
+
+            const dataMsgOfSender = dataRes.map((msg) => {
+              return {
+                fromSelf: msg?.senderID === from,
+                senderID: msg?.senderID,
+                message: msg?.message,
+                image: msg?.filename,
+              };
+            });
+            return res.send({
+              result: true,
+              data: dataMsgOfSender,
+            });
+          },
+        );
+        conn.release();
+      });
+    }
+  } catch (error) {
+    return res.send({
+      result: false,
+      error: [{ msg: error }],
+    });
+  }
+};
+
+module.exports = { addMessage, getAllMessage, getMessageRoom, addMessageRoom };

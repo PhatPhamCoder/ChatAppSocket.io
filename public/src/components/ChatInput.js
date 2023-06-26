@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import EmojiPicker from "emoji-picker-react";
 import styled from "styled-components";
 import { FiSend } from "react-icons/fi";
@@ -6,6 +6,81 @@ import { CiFaceSmile } from "react-icons/ci";
 import { ImAttachment } from "react-icons/im";
 import { axiosUpload } from "../config/axiosConfig";
 import { uploadRoute } from "../utils/APIRoutes";
+
+const ChatInput = ({ handleSendMsg, currentChat }) => {
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [msg, setMsg] = useState("");
+  const [file, setFile] = useState();
+  const handleEmojiPickerHideShow = () => {
+    setShowEmojiPicker(!showEmojiPicker);
+  };
+
+  const handleEmojiClick = (emojiData, event) => {
+    let message = msg;
+    message += emojiData.emoji;
+    setMsg(message);
+  };
+
+  const sendChat = async (event) => {
+    event.preventDefault();
+    if (msg.length > 0) {
+      handleSendMsg(msg);
+      setMsg("");
+    }
+
+    if (file) {
+      const formData = new FormData();
+      formData.append("image", file);
+      await axiosUpload
+        .post(
+          `${uploadRoute}/${window.localStorage.getItem("ID")}/${currentChat}`,
+          formData,
+        )
+        // .then((res) => console.log(res.data))
+        .catch((err) => console.error(err));
+    }
+  };
+
+  const handleUpload = async (e) => {
+    const selectedImage = e.target.files[0];
+    setFile(selectedImage);
+  };
+
+  return (
+    <Container>
+      <div className="button-container">
+        <div className="emoji">
+          <CiFaceSmile onClick={handleEmojiPickerHideShow} />
+          {showEmojiPicker && <EmojiPicker onEmojiClick={handleEmojiClick} />}
+        </div>
+        <div className="file-attach">
+          <label htmlFor="attach">
+            <ImAttachment />
+          </label>
+          <input
+            type="file"
+            id="attach"
+            hidden
+            accept="image/*"
+            onChange={(e) => handleUpload(e)}
+          />
+        </div>
+      </div>
+      <form className="input-container" onSubmit={(e) => sendChat(e)}>
+        <input
+          type="text"
+          placeholder="Nhập nội dung tin nhắn ...."
+          value={msg}
+          onChange={(e) => setMsg(e.target.value)}
+        />
+        <button type="submit">
+          <FiSend />
+        </button>
+      </form>
+    </Container>
+  );
+};
+export default ChatInput;
 
 const Container = styled.div`
   display: grid;
@@ -113,77 +188,3 @@ const Container = styled.div`
     }
   }
 `;
-
-const ChatInput = ({ handleSendMsg, currentChat }) => {
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [msg, setMsg] = useState("");
-  const [file, setFile] = useState();
-  const handleEmojiPickerHideShow = () => {
-    setShowEmojiPicker(!showEmojiPicker);
-  };
-
-  const handleEmojiClick = (emojiData, event) => {
-    let message = msg;
-    message += emojiData.emoji;
-    setMsg(message);
-  };
-
-  const sendChat = async (event) => {
-    event.preventDefault();
-
-    if (msg.length > 0) {
-      handleSendMsg(msg);
-      setMsg("");
-    }
-
-    const formData = new FormData();
-    formData.append("image", file);
-    await axiosUpload
-      .post(
-        `${uploadRoute}/${window.localStorage.getItem("ID")}/${currentChat}`,
-        formData,
-      )
-      .then((res) => console.log(res.data))
-      .catch((err) => console.error(err));
-  };
-
-  const handleUpload = async (e) => {
-    const selectedImage = e.target.files[0];
-    setFile(selectedImage);
-  };
-
-  return (
-    <Container>
-      <div className="button-container">
-        <div className="emoji">
-          <CiFaceSmile onClick={handleEmojiPickerHideShow} />
-          {showEmojiPicker && <EmojiPicker onEmojiClick={handleEmojiClick} />}
-        </div>
-        <div className="file-attach">
-          <label htmlFor="attach">
-            <ImAttachment />
-          </label>
-          <input
-            type="file"
-            id="attach"
-            hidden
-            accept="image/png, image/jpeg, image/jpg"
-            onChange={(e) => handleUpload(e)}
-          />
-        </div>
-      </div>
-      <form className="input-container" onSubmit={(e) => sendChat(e)}>
-        <input
-          type="text"
-          placeholder="Nhập nội dung tin nhắn ...."
-          value={msg}
-          onChange={(e) => setMsg(e.target.value)}
-        />
-        <button type="submit">
-          <FiSend />
-        </button>
-      </form>
-    </Container>
-  );
-};
-export default ChatInput;

@@ -90,10 +90,6 @@ function Login() {
     window.localStorage.setItem("refreshToken", refreshToken);
   };
 
-  // useEffect(() => {
-  //   window.localStorage.getItem("accessToken");
-  // }, []);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (handleValidation()) {
