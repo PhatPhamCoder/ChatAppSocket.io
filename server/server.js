@@ -4,6 +4,7 @@ const morgan = require("morgan");
 require("dotenv").config();
 const cors = require("cors");
 const app = express();
+const fs = require("fs");
 
 const bodyParser = require("body-parser");
 const compression = require("compression");
@@ -41,7 +42,7 @@ const io = socket(server, {
 const sockets = new Map();
 
 io.on("connection", (socket) => {
-  console.log("A User Connected::", socket.id);
+  console.log(`⚡: ${socket.id} user just connected!`);
   global.chatSocket = socket;
 
   socket.on("add-user", (userId) => {
@@ -65,7 +66,11 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("disconnect", () => {});
+  socket.on("typing", (data) => socket.broadcast.emit("typingResponse", data));
+
+  socket.on("disconnect", () => {
+    console.log("🔥: A user disconnected");
+  });
 });
 
 /**Config Socket.io End*/

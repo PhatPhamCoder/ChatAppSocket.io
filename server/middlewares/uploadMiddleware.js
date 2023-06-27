@@ -31,7 +31,12 @@ const storage = multer.diskStorage({
     const uniqueSuffix = Date.now() + "_" + Math.round(Math.random() * 1e9);
     cb(
       null,
-      file.fieldname + "_" + uniqueSuffix + path.extname(file.originalname),
+      file.fieldname +
+        "_" +
+        "room" +
+        "_" +
+        uniqueSuffix +
+        path.extname(file.originalname),
     );
   },
 });

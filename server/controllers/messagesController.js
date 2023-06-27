@@ -157,6 +157,7 @@ const addMessageRoom = async (req, res) => {
 const getAllMessage = async (req, res) => {
   try {
     const { from, to } = req.body;
+    const limit = 20;
     db.getConnection((err, conn) => {
       if (err) {
         return res.send({
@@ -165,7 +166,7 @@ const getAllMessage = async (req, res) => {
         });
       }
       conn.query(
-        `SELECT message,senderID,userTo,filename FROM ${tableChat} WHERE senderID = ${from} OR senderID = ${to}`,
+        `SELECT message,senderID,userTo,filename FROM ${tableChat} WHERE senderID = ${from} OR senderID = ${to} ORDER BY created_at DESC LIMIT 0,${limit}`,
         (err, dataRes) => {
           if (err) {
             // console.error(err);

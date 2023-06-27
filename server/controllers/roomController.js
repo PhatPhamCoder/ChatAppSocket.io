@@ -121,7 +121,7 @@ const getRoomById = async (req, res) => {
 // Join Room
 const joinRoom = async (req, res) => {
   try {
-    const { userId, roomId, roomName } = req.body;
+    const { userId, roomName } = req.body;
     db.getConnection((err, conn) => {
       if (err) {
         return res.send({
@@ -131,7 +131,7 @@ const joinRoom = async (req, res) => {
       }
       // Check user on Room
       conn.query(
-        `SELECT * FROM ${tableParticipant} WHERE userId = ${userId} AND roomId = ${roomId}`,
+        `SELECT * FROM ${tableParticipant} WHERE userId = ${userId} AND roomName = "${roomName}"`,
         (err, data) => {
           if (err) {
             return res.send({
@@ -165,7 +165,7 @@ const joinRoom = async (req, res) => {
                 if (dataRes.length !== 0) {
                   // check room exists
                   conn.query(
-                    `SELECT id,roomName FROM ${tableRoom} WHERE id = ${roomId}`,
+                    `SELECT id,roomName FROM ${tableRoom} WHERE roomName = "${roomName}"`,
                     (err, dataRes_) => {
                       if (err) {
                         return res.send({
@@ -184,13 +184,14 @@ const joinRoom = async (req, res) => {
                         if (dataRes_[0]?.roomName === roomName) {
                           const participant = new Participants({
                             userId: userId,
-                            roomId: roomId,
+                            roomId: dataRes_[0]?.id,
                             roomName: roomName,
                             joined_date: Date.now(),
                             created_at: Date.now(),
                           });
                           delete participant.left_date;
                           delete participant.updated_at;
+
                           roomService.JoinRoom(participant, (err, res_) => {
                             if (err) {
                               return res.send({

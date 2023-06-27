@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import EmojiPicker from "emoji-picker-react";
 import styled from "styled-components";
 import { FiSend } from "react-icons/fi";
@@ -11,6 +11,7 @@ const ChatInput = ({ handleSendMsg, currentChat, currentChatRoom }) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [msg, setMsg] = useState("");
   const [file, setFile] = useState();
+
   const handleEmojiPickerHideShow = () => {
     setShowEmojiPicker(!showEmojiPicker);
   };
@@ -50,7 +51,7 @@ const ChatInput = ({ handleSendMsg, currentChat, currentChatRoom }) => {
           }`,
           formData,
         )
-        .then((res) => console.log(res.data))
+        // .then((res) => console.log(res.data))
         .catch((err) => console.error(err));
     }
   };
@@ -75,7 +76,6 @@ const ChatInput = ({ handleSendMsg, currentChat, currentChatRoom }) => {
             type="file"
             id="attach"
             hidden
-            accept="image/*"
             onChange={(e) => handleUpload(e)}
           />
         </div>

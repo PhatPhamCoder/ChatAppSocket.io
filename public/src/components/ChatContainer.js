@@ -113,10 +113,16 @@ const ChatContainer = ({ currentChat, currentUser, socket }) => {
                     msg.message
                   ) : currentChat?.id === msg?.sendFrom ||
                     currentUser?.dataRes?.[0]?.id === msg?.sendFrom ? (
-                    <img
-                      src={`${host}/thumb/${msg.sendFrom}/` + msg.image}
-                      alt=""
-                    />
+                    msg.image.split(".").pop() === "rar" ? (
+                      <p>{msg.image}</p>
+                    ) : (
+                      <img
+                        src={`${host}/thumb/${msg.sendFrom}/` + msg.image}
+                        alt=""
+                      />
+                    )
+                  ) : msg.image.split(".").pop() === "rar" ? (
+                    <p>{msg.image}</p>
                   ) : (
                     <img
                       src={`${host}/thumb/${msg.sendto}/` + msg.image}

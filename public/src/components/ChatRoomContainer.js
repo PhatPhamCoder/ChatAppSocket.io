@@ -121,10 +121,34 @@ const ChatRoomContainer = ({ currentUser, currentChatRoom }) => {
                   msg.message
                 ) : currentChatRoom?.roomId === msg?.senderID ||
                   currentUser?.dataRes?.[0]?.id === msg?.senderID ? (
-                  <img
-                    src={`${host}/room/thumb/${msg.senderID}/` + msg.image}
-                    alt=""
-                  />
+                  msg.image.split(".").pop() === "rar" ? (
+                    <form
+                      method="get"
+                      action={
+                        `${host}/room/images/${msg.senderID}/` + msg.image
+                      }
+                      style={{}}
+                    >
+                      <button type="submit" className="button-submit">
+                        <div>{msg.image}</div>
+                      </button>
+                    </form>
+                  ) : (
+                    <img
+                      src={`${host}/room/thumb/${msg.senderID}/` + msg.image}
+                      alt=""
+                    />
+                  )
+                ) : msg.image.split(".").pop() === "rar" ? (
+                  <form
+                    method="get"
+                    action={`${host}/room/images/${msg.senderID}/` + msg.image}
+                    style={{}}
+                  >
+                    <button type="submit" className="button-submit">
+                      <div>{msg.image}</div>
+                    </button>
+                  </form>
                 ) : (
                   <img
                     src={`${host}/room/thumb/${msg.senderID}/` + msg.image}
@@ -210,7 +234,7 @@ const Container = styled.div`
       display: flex;
       align-items: center;
       .content {
-        max-width: 40%;
+        max-width: 50%;
         overflow-wrap: break-word;
         padding: 1rem;
         font-size: 1.1rem;
@@ -233,11 +257,31 @@ const Container = styled.div`
       .content {
         background-color: #4f04ff21;
       }
+      .button-submit {
+        outline: none;
+        border: none;
+        background-color: transparent;
+        color: white;
+        div {
+          display: flex;
+          word-break: break-word;
+        }
+      }
     }
     .received {
       justify-content: flex-start;
       .content {
         background-color: #9900ff20;
+      }
+      .button-submit {
+        outline: none;
+        border: none;
+        background-color: transparent;
+        color: white;
+        div {
+          display: flex;
+          word-break: break-word;
+        }
       }
     }
 

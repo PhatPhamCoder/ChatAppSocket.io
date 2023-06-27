@@ -48,10 +48,9 @@ const Register = async (req, res, next) => {
               username: username,
               email: email,
               password: hashPassword,
+              active: 1,
               created_at: Date.now(),
             });
-            delete roomID;
-            delete active;
             delete updated_at;
             userService.Register(user, (err, res_) => {
               if (err) {
@@ -120,7 +119,7 @@ const Login = async (req, res, next) => {
           const _token = await signAccesToken(data);
           const _refreshToken = await signRefreshToken(data);
 
-          const updateToken = `UPDATE ${tableUser} SET refresh_token = ? WHERE id = ?`;
+          const updateToken = `UPDATE ${tableUser} SET refresh_token = ?, active = 2 WHERE id = ?`;
           conn.query(
             updateToken,
             [_refreshToken, dataRes[0]?.id],

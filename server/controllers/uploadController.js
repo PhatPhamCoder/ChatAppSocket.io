@@ -26,72 +26,33 @@ const uploadImage = async (req, res) => {
       // console.log(req.file.path);
       const imageName = req?.file?.filename;
       // console.log("Check Image name::", imageName);
-      await sharp(req.file.path)
-        .resize({ width: 150, height: 150 })
-        .toFile(`public/thumb/` + `${id}/` + req?.file?.filename, (err) => {
+      // console.log(imageName.split(".").pop() === "rar");
+      if (imageName.split(".").pop() === "rar") {
+        const messages = new Messages({
+          senderID: id,
+          userTo: receiverId,
+          filename: imageName,
+          created_at: Date.now(),
+        });
+        delete messages?.message;
+        delete messages?.roomId;
+        // console.log("Check upload one to one", messages);
+        uploadService.upload(messages, (err, res_) => {
           if (err) {
             return res.send({
               result: false,
-              error: [err],
+              error: [{ msg: constantNotify.ERROR }],
             });
           }
-
-          const messages = new Messages({
-            senderID: id,
-            userTo: receiverId,
-            filename: imageName,
-            created_at: Date.now(),
-          });
-          delete messages?.message;
-          delete messages?.roomID;
-
-          uploadService.upload(messages, (err, res_) => {
-            if (err) {
-              return res.send({
-                result: false,
-                error: [{ msg: constantNotify.ERROR }],
-              });
-            }
-            return res.send({
-              result: true,
-              data: { msg: constantNotify.ADD_DATA_SUCCESS },
-            });
+          return res.send({
+            result: true,
+            data: { msg: constantNotify.ADD_DATA_SUCCESS },
           });
         });
-    } else {
-      return res.send({
-        result: false,
-        error: [{ msg: constantNotify.VALIDATE_FILE_SIZE }],
-      });
-    }
-  } catch (error) {
-    return res.send({
-      result: false,
-      error: [error],
-    });
-  }
-};
-
-const uploadImageRoom = async (req, res) => {
-  try {
-    const id = req.params.id;
-    const receiverId = req.params.receiverId;
-    console.log(id, receiverId);
-    if (!req.file) {
-      return res.send({
-        result: false,
-        error: [{ msg: constantNotify.VALIDATE_FILE }],
-      });
-    }
-    if (req.file.size <= 2000000) {
-      // console.log(req.file.path);
-      const imageName = req?.file?.filename;
-      // console.log("Check Image name::", imageName);
-      await sharp(req.file.path)
-        .resize({ width: 150, height: 150 })
-        .toFile(
-          `public/room/thumb/` + `${id}/` + req?.file?.filename,
-          (err) => {
+      } else {
+        await sharp(req.file.path)
+          .resize({ width: 150, height: 150 })
+          .toFile(`public/thumb/` + `${id}/` + req?.file?.filename, (err) => {
             if (err) {
               return res.send({
                 result: false,
@@ -101,13 +62,12 @@ const uploadImageRoom = async (req, res) => {
 
             const messages = new Messages({
               senderID: id,
-              roomId: receiverId,
+              userTo: receiverId,
               filename: imageName,
               created_at: Date.now(),
             });
             delete messages?.message;
-            delete messages?.userTo;
-
+            delete messages?.roomId;
             uploadService.upload(messages, (err, res_) => {
               if (err) {
                 return res.send({
@@ -120,8 +80,95 @@ const uploadImageRoom = async (req, res) => {
                 data: { msg: constantNotify.ADD_DATA_SUCCESS },
               });
             });
-          },
-        );
+          });
+      }
+    } else {
+      return res.send({
+        result: false,
+        error: [{ msg: constantNotify.VALIDATE_FILE_SIZE }],
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.send({
+      result: false,
+      error: [error],
+    });
+  }
+};
+
+const uploadImageRoom = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const receiverId = req.params.receiverId;
+    if (!req.file) {
+      return res.send({
+        result: false,
+        error: [{ msg: constantNotify.VALIDATE_FILE }],
+      });
+    }
+    if (req.file.size <= 2000000) {
+      // console.log(req.file.path);
+      const imageName = req?.file?.filename;
+      // console.log("Check Image name::", imageName);
+      if (imageName.split(".").pop() === "rar") {
+        const messages = new Messages({
+          senderID: id,
+          roomId: receiverId,
+          filename: imageName,
+          created_at: Date.now(),
+        });
+        delete messages?.message;
+        delete messages?.userTo;
+        uploadService.uploadRoom(messages, (err, res_) => {
+          if (err) {
+            return res.send({
+              result: false,
+              error: [{ msg: constantNotify.ERROR }],
+            });
+          }
+          return res.send({
+            result: true,
+            data: { msg: constantNotify.ADD_DATA_SUCCESS },
+          });
+        });
+      } else {
+        await sharp(req.file.path)
+          .resize({ width: 150, height: 150 })
+          .toFile(
+            `public/room/thumb/` + `${id}/` + req?.file?.filename,
+            (err) => {
+              if (err) {
+                return res.send({
+                  result: false,
+                  error: [err],
+                });
+              }
+
+              const messages = new Messages({
+                senderID: id,
+                roomId: receiverId,
+                filename: imageName,
+                created_at: Date.now(),
+              });
+              delete messages?.message;
+              delete messages?.userTo;
+
+              uploadService.uploadRoom(messages, (err, res_) => {
+                if (err) {
+                  return res.send({
+                    result: false,
+                    error: [{ msg: constantNotify.ERROR }],
+                  });
+                }
+                return res.send({
+                  result: true,
+                  data: { msg: constantNotify.ADD_DATA_SUCCESS },
+                });
+              });
+            },
+          );
+      }
     } else {
       return res.send({
         result: false,

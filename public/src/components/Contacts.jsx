@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { styled } from "styled-components";
 import { socket } from "../utils/Socket";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import instance from "../config/axiosConfig";
-import { createRoomRoute } from "../utils/APIRoutes";
+import { createRoomRoute, joinRoomRoute } from "../utils/APIRoutes";
 import { toast } from "react-toastify";
 const Contacts = ({
   contacts,
@@ -23,7 +23,6 @@ const Contacts = ({
   };
 
   const changeCurrentChatRoom = (index, room) => {
-    // console.log(room);
     setSelectedRoom(index);
     changeRoom(room);
     socket.emit("join-room", {
@@ -32,11 +31,18 @@ const Contacts = ({
     });
   };
 
-  // const joinRoom = () => {
-  //   if (room !== "") {
-  //     socket.emit("join-room", room?.id);
-  //   }
-  // };
+  const joinRoom = async () => {
+    const roomData = {
+      roomName: room,
+      userId: currentUser?.dataRes[0]?.id,
+    };
+    if (roomData !== "") {
+      await instance
+        .post(joinRoomRoute, roomData)
+        .then((res) => console.log(res.data))
+        .catch((err) => console.error(err));
+    }
+  };
 
   const createRoom = async () => {
     const userId = currentUser?.dataRes?.[0]?.id;
@@ -89,7 +95,7 @@ const Contacts = ({
             color: "red",
             cursor: "pointer",
           }}
-          // onClick={joinRoom}
+          onClick={joinRoom}
         >
           Join
         </button>
