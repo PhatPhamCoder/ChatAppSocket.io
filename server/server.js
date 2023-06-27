@@ -32,7 +32,7 @@ const server = app.listen(process.env.PORT, () => {
 /**Config Socket.io */
 const io = socket(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: process.env.REACT_APP,
     credentials: true,
     methods: ["GET", "POST"],
   },
@@ -47,18 +47,17 @@ io.on("connection", (socket) => {
   socket.on("add-user", (userId) => {
     sockets.set(userId, socket.id);
   });
+
   socket.on("join-room", ({ room, userId }) => {
     console.log(`Data socket id::${userId} with roomID::${room}`);
     const user = userJoin(userId, room);
     socket.join(user.room);
-    socket.on("Send-message-room", (msg) => {
-      console.log("check mesage from client::", msg);
-      console.log("check userId from client::", userId);
-      const user = getCurrentUser(userId);
-      io.to(user.room).emit("recieve-message-room", msg.msg); //All user can view
-    });
   });
 
+  socket.on("Send-message-room", (msg) => {
+    const user = getCurrentUser(msg?.from);
+    socket.to(user.room).emit("recieve-message-room", msg);
+  });
   socket.on("send-msg", (data) => {
     const sendUserSocket = sockets.get(data?.to);
     if (sendUserSocket) {
@@ -68,3 +67,5 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {});
 });
+
+/**Config Socket.io End*/

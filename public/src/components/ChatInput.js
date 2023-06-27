@@ -7,7 +7,7 @@ import { ImAttachment } from "react-icons/im";
 import { axiosUpload } from "../config/axiosConfig";
 import { uploadRoute } from "../utils/APIRoutes";
 
-const ChatInput = ({ handleSendMsg, currentChat }) => {
+const ChatInput = ({ handleSendMsg, currentChat, currentChatRoom }) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [msg, setMsg] = useState("");
   const [file, setFile] = useState();
@@ -37,6 +37,20 @@ const ChatInput = ({ handleSendMsg, currentChat }) => {
           formData,
         )
         // .then((res) => console.log(res.data))
+        .catch((err) => console.error(err));
+    }
+
+    if (currentChatRoom?.roomId) {
+      const formData = new FormData();
+      formData.append("image", file);
+      await axiosUpload
+        .post(
+          `${uploadRoute}/room/${window.localStorage.getItem("ID")}/${
+            currentChatRoom?.roomId
+          }`,
+          formData,
+        )
+        .then((res) => console.log(res.data))
         .catch((err) => console.error(err));
     }
   };

@@ -219,7 +219,7 @@ const getMessageRoom = async (req, res) => {
           });
         }
         conn.query(
-          `SELECT message,senderID FROM ${tableChat} WHERE roomId = ${roomId}`,
+          `SELECT message,senderID,roomId,filename FROM ${tableChat} WHERE roomId = ${roomId}`,
           (err, dataRes) => {
             if (err) {
               return res.send({

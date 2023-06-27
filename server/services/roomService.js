@@ -3,6 +3,7 @@ const constantNotify = require("../utils/constanNotify");
 const tableRoom = "tbl_room";
 const tableParticipant = "tbl_participant";
 
+/**Create Room */
 const createRoom = async (data, result) => {
   try {
     const query = `INSERT INTO ${tableRoom} SET ?`;
@@ -17,6 +18,7 @@ const createRoom = async (data, result) => {
   }
 };
 
+/**Join Room */
 const JoinRoom = async (data, result) => {
   try {
     const query = `INSERT INTO ${tableParticipant} SET ?`;
@@ -31,6 +33,7 @@ const JoinRoom = async (data, result) => {
   }
 };
 
+/**Leave Room */
 const leaveRoom = async (id, result) => {
   try {
     const query = `DELETE FROM ${tableParticipant} WHERE ${tableParticipant}.id = ?`;

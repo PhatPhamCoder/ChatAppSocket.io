@@ -17,7 +17,6 @@ function User(id) {
 }
 
 // Get current user
-
 function getCurrentUser(id) {
   return users.find((user) => user.id === id);
 }

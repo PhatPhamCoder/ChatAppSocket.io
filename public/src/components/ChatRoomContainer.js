@@ -2,19 +2,24 @@ import React, { useEffect, useRef, useState } from "react";
 import { styled } from "styled-components";
 import LogOut from "./Logout";
 import ChatInput from "./ChatInput";
-import { getAllMessageRoomRoute, messageRoomRoute } from "../utils/APIRoutes";
+import {
+  getAllMessageRoomRoute,
+  host,
+  messageRoomRoute,
+} from "../utils/APIRoutes";
 import instance from "../config/axiosConfig";
 import { socket } from "../utils/Socket";
 
 const ChatRoomContainer = ({ currentUser, currentChatRoom }) => {
   const scrollRef = useRef(null);
   const [messages, setMessages] = useState();
+  console.log(messages);
   const [arrivalMessage, setArrivalMessage] = useState(null);
+  // console.log(arrivalMessage);
 
   const handleSendMsg = async (msg) => {
     try {
       if (!currentUser || !currentChatRoom) {
-        // Handle missing dependencies
         console.error("Missing dependencies");
         return;
       }
@@ -35,7 +40,12 @@ const ChatRoomContainer = ({ currentUser, currentChatRoom }) => {
 
       const updatedMessages = [
         ...messages,
-        { fromSelf: true, sendto: toId, message: msg },
+        {
+          // fromSelf: currentUser?.dataRes[0]?.id !== msg?.from,
+          fromSelf: true,
+          sendto: toId,
+          message: msg,
+        },
       ];
       setMessages(updatedMessages);
     } catch (error) {
@@ -46,18 +56,20 @@ const ChatRoomContainer = ({ currentUser, currentChatRoom }) => {
   useEffect(() => {
     if (socket) {
       socket.on("recieve-message-room", (msg) => {
-        console.log("check massage room::", msg);
         setArrivalMessage({
+          // fromSelf: currentUser?.dataRes[0]?.id === msg?.from,
           fromSelf: false,
           sendto: currentChatRoom?.roomId,
-          message: msg,
+          message: msg.msg,
         });
       });
     }
-  }, [currentChatRoom]);
+  }, [currentUser, currentChatRoom]);
 
   useEffect(() => {
-    arrivalMessage && setMessages((prev) => [...prev, arrivalMessage]);
+    if (arrivalMessage) {
+      arrivalMessage && setMessages((prev) => [...prev, arrivalMessage]);
+    }
   }, [arrivalMessage]);
 
   useEffect(() => {
@@ -104,14 +116,29 @@ const ChatRoomContainer = ({ currentUser, currentChatRoom }) => {
               className={`message ${msg.fromSelf ? "sender" : "received"}`}
               key={index}
             >
-              <div className="content">{msg.message}</div>
+              <div className="content">
+                {msg.message !== null ? (
+                  msg.message
+                ) : currentChatRoom?.roomId === msg?.senderID ||
+                  currentUser?.dataRes?.[0]?.id === msg?.senderID ? (
+                  <img
+                    src={`${host}/room/thumb/${msg.senderID}/` + msg.image}
+                    alt=""
+                  />
+                ) : (
+                  <img
+                    src={`${host}/room/thumb/${msg.senderID}/` + msg.image}
+                    alt=""
+                  />
+                )}
+              </div>
             </div>
           );
         })}
       </div>
       <ChatInput
         handleSendMsg={handleSendMsg}
-        currentChatRoom={currentChatRoom?.id}
+        currentChatRoom={currentChatRoom}
       />
     </Container>
   );

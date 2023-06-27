@@ -11,6 +11,7 @@ import Contacts from "../components/Contacts";
 import ChatContainer from "../components/ChatContainer";
 import { io } from "socket.io-client";
 import ChatRoomContainer from "../components/ChatRoomContainer";
+import socketIOClient from "socket.io-client";
 
 const Chat = () => {
   const socket = useRef();
@@ -51,7 +52,7 @@ const Chat = () => {
 
   useEffect(() => {
     if (currentUser) {
-      socket.current = io(host);
+      socket.current = socketIOClient.connect(host);
       socket.current.emit("add-user", currentUser?.dataRes?.[0]?.id);
     }
   }, [currentUser]);

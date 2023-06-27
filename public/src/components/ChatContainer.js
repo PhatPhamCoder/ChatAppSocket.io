@@ -6,7 +6,6 @@ import { getAllMessageRoute, host, messageRoute } from "../utils/APIRoutes";
 import instance from "../config/axiosConfig";
 const ChatContainer = ({ currentChat, currentUser, socket }) => {
   const [messages, setMessages] = useState([]);
-  // console.log(messages);
   const scrollRef = useRef(null);
   const [arrivalMessage, setArrivalMessage] = useState(null);
 
